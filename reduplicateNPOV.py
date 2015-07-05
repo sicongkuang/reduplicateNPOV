@@ -14,6 +14,7 @@ from nltk.parse import stanford
 import StanfordDependencies
 import timeit
 import codecs
+import json
 
 LHan = [[0x2E80, 0x2E99],    # Han # So  [26] CJK RADICAL REPEAT, CJK RADICAL RAP
         [0x2E9B, 0x2EF3],    # Han # So  [89] CJK RADICAL CHOKE, CJK RADICAL C-SIMPLIFIED TURTLE
@@ -454,11 +455,15 @@ def collaborFea(w):
         return 0
 
 def featureGen30(senWl):
+    if not senWl:
+        return
     wordnet_lemmatizer = WordNetLemmatizer()
-    slen = len(senWl)
+
     RE = build_re()
     for i,ev in enumerate(senWl):
-        senWl[i] = RE.sub('',ev).encode('utf-8')
+        senWl[i] = RE.sub('',ev)
+    senWl = filter(None, [one for one in senWl])
+    slen = len(senWl)
     sentences = parser.parse(senWl)
     sen = ""
     for line in sentences:
@@ -550,9 +555,13 @@ def featureGen30(senWl):
         #f32
         dict['Collaborative feature'] = collaborFea(w)
 
+        features.append(dict)
+
 ### main function ###
 
 gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-train.tsv','r')
+# gram5_train = open('/Users/wxbks/Downloads/test.txt','r')
+
 # gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/PalestinianTerrorists.txt','r')
 
 
@@ -643,22 +652,26 @@ for line in gram5_train:
                                         npovdict[w] += 1
                                     else:
                                         npovdict[w] = 1
-                                # write npov words to file
-
-                                for key in npovdict:
-                                    print >>npovLst, key
                                 test_nline8.write(line+'\n')
                                 # features generation
-                                features = featureGen30(senWl)
+                                featureGen30(senWl)
 end = timeit.timeit()
 print end - start
+
+# write npov words to file
+
+for key in npovdict:
+    print >>npovLst, key
+
 
 print l
 print len(labels)
 print len(features)
 print features[0:2]
-fea = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst','w','utf-8')
-fea.write(features)
+
+with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst.json','w') as fp:
+    json.dump(features,fp)
+
 
 
 
