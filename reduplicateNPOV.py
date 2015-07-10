@@ -15,6 +15,7 @@ import StanfordDependencies
 import timeit
 import codecs
 import json
+import csv
 
 LHan = [[0x2E80, 0x2E99],    # Han # So  [26] CJK RADICAL REPEAT, CJK RADICAL RAP
         [0x2E9B, 0x2EF3],    # Han # So  [89] CJK RADICAL CHOKE, CJK RADICAL C-SIMPLIFIED TURTLE
@@ -95,7 +96,7 @@ def editsWordsList(str):
     wordl = filter(None,[word.strip(string.punctuation)
                  for word in str.replace(';','; ').split()
                  ])
-    # print wordl
+    print wordl
     return wordl
 
 def editsLess(num):
@@ -310,8 +311,14 @@ def dataItemParser(str):
 #     return any((sublst == lst[i:i+n]) for i in xrange(len(lst)-n+1))
 
 def contains_sublist(lst, sublst):
+
+    if not sublst:
+        for i in xrange(len(lst)):
+            labels.append((lst[i],0))
+        return 0
     n = len(sublst)
-    if any((sublst == lst[i:i+n]) for i in xrange(len(lst)-n+1)):
+    m = len(lst)
+    if any((sublst == lst[i:i+n]) for i in xrange(m-n+1)):
         pass
     else:
         # print "no match!"
@@ -320,21 +327,21 @@ def contains_sublist(lst, sublst):
 
         return -1
 
-    for i in xrange(len(lst)-n+1):
+    for i in xrange(m-n+1):
         if sublst == lst[i:i+n]:
             t=0
             while t < i:
                 # print lst(t)
-                labels.append(0)
+                labels.append((lst[t],0))
                 # print "lst index:"+str(t)+"; "+ "lst val: "+ str(lst[t])
                 t += 1
             while t < i + n:
 
-                labels.append(1)
+                labels.append((lst[t],1))
                 # print "lst index:"+str(t)+"; "+ "lst val: "+ str(lst[t])
                 t += 1
             while t < (len(lst)):
-                labels.append(0)
+                labels.append((lst[t],0))
                 # print "lst index:"+str(t)+"; "+ "lst val: "+ str(lst[t])
                 t += 1
     return 0
@@ -454,6 +461,14 @@ def collaborFea(w):
     else:
         return 0
 
+
+def filterChinese(senWl,editWl):
+    RE = build_re()
+    for i,ev in enumerate(senWl):
+        senWl[i] = RE.sub('',ev)
+    for i,ev in enumerate(editWl):
+        editWl[i] = RE.sub('',ev)
+
 def featureGen30(senWl):
     if not senWl:
         return
@@ -511,43 +526,43 @@ def featureGen30(senWl):
         #f10
         dict['Hedge in context'] = contextCheck(HedgeLst, senWl,i)
         #f11
-        dict['Factive verb'] = wordCheck(FactiveLst,w)
-        #f12
-        dict['Factive verb in context'] = contextCheck(FactiveLst, senWl,i)
-        #f13
-        dict['Assertive verb'] = wordCheck(AssertiveLst,w)
-        #f14
-        dict['Assertive verb in context'] = contextCheck(AssertiveLst,senWl,i)
-        #f15
-        dict['Implicative verb'] = wordCheck(ImplicativeLst,w)
-        #f16
-        dict['Implicative verb in context'] = contextCheck(ImplicativeLst,senWl,i)
-        #f17
-        dict['Report verb'] = wordCheck(ReportLst,w)
-        #f18
-        dict['Report verb in context'] = contextCheck(ReportLst,senWl,i)
-        #f19
-        dict['Entailment'] = wordCheck(entailLst,w)
-        #f20
-        dict['Entailment in context'] = contextCheck(entailLst,senWl,i)
-        #f21
-        dict['Strong subjective'] = wordCheck(StrongSubjLst,w)
-        #f22
-        dict['Strong subjective in context'] = contextCheck(StrongSubjLst,senWl,i)
-        #f23
-        dict['Weak subjective'] = wordCheck(WeakSubjLst,w)
-        #f24
-        dict['Weak subjective in context'] = contextCheck(WeakSubjLst,senWl,i)
-        #f25
-        dict['Polarity'] = polarityCheck(PolarityDict,w)
-        #f26
-        dict['Positive word'] = wordCheck(PosiveLst,w)
-        #f27
-        dict['Positive word in context'] = contextCheck(PosiveLst,senWl,i)
-        #f28
-        dict['Negative word'] = wordCheck(NegativeLst,w)
-        #f29
-        dict['Negative word in context'] = contextCheck(NegativeLst,senWl,i)
+        # dict['Factive verb'] = wordCheck(FactiveLst,w)
+        # #f12
+        # dict['Factive verb in context'] = contextCheck(FactiveLst, senWl,i)
+        # #f13
+        # dict['Assertive verb'] = wordCheck(AssertiveLst,w)
+        # #f14
+        # dict['Assertive verb in context'] = contextCheck(AssertiveLst,senWl,i)
+        # #f15
+        # dict['Implicative verb'] = wordCheck(ImplicativeLst,w)
+        # #f16
+        # dict['Implicative verb in context'] = contextCheck(ImplicativeLst,senWl,i)
+        # #f17
+        # dict['Report verb'] = wordCheck(ReportLst,w)
+        # #f18
+        # dict['Report verb in context'] = contextCheck(ReportLst,senWl,i)
+        # #f19
+        # dict['Entailment'] = wordCheck(entailLst,w)
+        # #f20
+        # dict['Entailment in context'] = contextCheck(entailLst,senWl,i)
+        # #f21
+        # dict['Strong subjective'] = wordCheck(StrongSubjLst,w)
+        # #f22
+        # dict['Strong subjective in context'] = contextCheck(StrongSubjLst,senWl,i)
+        # #f23
+        # dict['Weak subjective'] = wordCheck(WeakSubjLst,w)
+        # #f24
+        # dict['Weak subjective in context'] = contextCheck(WeakSubjLst,senWl,i)
+        # #f25
+        # dict['Polarity'] = polarityCheck(PolarityDict,w)
+        # #f26
+        # dict['Positive word'] = wordCheck(PosiveLst,w)
+        # #f27
+        # dict['Positive word in context'] = contextCheck(PosiveLst,senWl,i)
+        # #f28
+        # dict['Negative word'] = wordCheck(NegativeLst,w)
+        # #f29
+        # dict['Negative word in context'] = contextCheck(NegativeLst,senWl,i)
         #f30
         dict['Grammatical relation'] = sent[i][7]
         #f31
@@ -559,8 +574,8 @@ def featureGen30(senWl):
 
 ### main function ###
 
-gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-train.tsv','r')
-# gram5_train = open('/Users/wxbks/Downloads/test.txt','r')
+# gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-train.tsv','r')
+gram5_train = open('/Users/wxbks/Downloads/test.txt','r')
 
 # gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/PalestinianTerrorists.txt','r')
 
@@ -578,17 +593,17 @@ l=0
 #feature prepare
 # f19; fill entail set
 stop = stopwords.words('english')
-entailLst = entailfeaturePrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/reverb_local_global/Resource0812/reverb_local_clsf_all.txt')
+# entailLst = entailfeaturePrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/reverb_local_global/Resource0812/reverb_local_clsf_all.txt')
 HedgeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/hedges_hyland2005.txt','r','utf-8') if ('#' not in line)])
-FactiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/factives_hooper1975.txt','r','utf-8') if ('#' not in line)])
-AssertiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/assertives_hooper1975.txt','r','utf-8') if ('#' not in line)])
-ImplicativeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/implicatives_karttunen1971.txt','r','utf-8') if ('#' not in line)])
-ReportLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/report_verbs.txt','r','utf-8') if ('#' not in line)])
-StrongSubjLst = subjectivePrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff','strongsubj')
-WeakSubjLst = subjectivePrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff','weaksubj')
-PolarityDict = polarityPrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff')
-PosiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/opinion-lexicon-English/positive-words.txt','r','utf-8') if (';' not in line)])
-NegativeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/opinion-lexicon-English/negative-words.txt','r') if (';' not in line)])
+# FactiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/factives_hooper1975.txt','r','utf-8') if ('#' not in line)])
+# AssertiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/assertives_hooper1975.txt','r','utf-8') if ('#' not in line)])
+# ImplicativeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/implicatives_karttunen1971.txt','r','utf-8') if ('#' not in line)])
+# ReportLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/report_verbs.txt','r','utf-8') if ('#' not in line)])
+# StrongSubjLst = subjectivePrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff','strongsubj')
+# WeakSubjLst = subjectivePrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff','weaksubj')
+# PolarityDict = polarityPrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff')
+# PosiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/opinion-lexicon-English/positive-words.txt','r','utf-8') if (';' not in line)])
+# NegativeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/opinion-lexicon-English/negative-words.txt','r') if (';' not in line)])
 sd = StanfordDependencies.get_instance(backend="subprocess")
 os.environ['STANFORD_PARSER'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
 os.environ['STANFORD_MODELS'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
@@ -638,8 +653,16 @@ for line in gram5_train:
                             # print str(l)+ ": "+et4
                             editWl = dataItemParser(et4) #
                             #generate label list
-
+                            filterChinese(senWl,editWl)
+                            senWl = filter(None, [one for one in senWl])
+                            editWl = filter(None, [one for one in editWl])
+                            print "editWl"
+                            print editWl
+                            print "senWl"
+                            print senWl
                             va = contains_sublist(senWl,editWl)
+
+
                             if va == -1:
                                 labNoMat.write(line+'\n')
                                 # print nline[6]+' ----> '+nline[7]
@@ -664,10 +687,16 @@ for key in npovdict:
     print >>npovLst, key
 
 
-print l
-print len(labels)
-print len(features)
-print features[0:2]
+print "good tuples:"+str(l)
+print "labels:"+str(len(labels))
+print "features:"+str(len(features))
+print features
+# w = csv.writer(codecs.open("outputFeatures.csv","w","utf-8"))
+# for one in features:
+#     for key, val in one.items():
+#         w.writerow([key,val])
+print "######features#####"
+print features
 
 with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst.json','w') as fp:
     json.dump(features,fp)
@@ -680,4 +709,4 @@ with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/feature
 gram5_train.close()
 test_nline8.close()
 labNoMat.close()
-fea.close()
+# fea.close()
