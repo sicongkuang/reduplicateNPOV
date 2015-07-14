@@ -101,7 +101,7 @@ def editsWordsList(str):
     wordl = filter(None,[word.strip(string.punctuation)
                  for word in str.replace(';','; ').split()
                  ])
-    print wordl
+    # print wordl
     return wordl
 
 def editsLess(num):
@@ -461,8 +461,8 @@ def checkNpov(w):
         return False
 
 def getFreqArt(w):
-    print freqArtDict['the']
-    print "freq of " + w+" : "+str(freqArtDict[w])
+    # print freqArtDict['the']
+    # print "freq of " + w+" : "+str(freqArtDict[w])
 
     return freqArtDict[w]
 
@@ -557,11 +557,11 @@ def featureGen30(artName,senWl):
         else:
             dict['POS+2'] = None
         #f8
-        dict['Position in sentence'] = postionInSentence(slen,i)
+        # dict['Position in sentence'] = postionInSentence(slen,i)
         #f9
-        dict['Hedge'] = wordCheck(HedgeLst,w)
+        # dict['Hedge'] = wordCheck(HedgeLst,w)
         #f10
-        dict['Hedge in context'] = contextCheck(HedgeLst, senWl,i)
+        # dict['Hedge in context'] = contextCheck(HedgeLst, senWl,i)
         #f11
         # dict['Factive verb'] = wordCheck(FactiveLst,w)
         # #f12
@@ -601,11 +601,11 @@ def featureGen30(artName,senWl):
         # #f29
         # dict['Negative word in context'] = contextCheck(NegativeLst,senWl,i)
         #f30
-        dict['Grammatical relation'] = sent[i][7]
+        # dict['Grammatical relation'] = sent[i][7]
         #f31
-        dict['Bias lexicon'] = checkNpov(w)
+        # dict['Bias lexicon'] = checkNpov(w)
         #f32
-        dict['Collaborative feature'] = collaborFea(artName,w)
+        # dict['Collaborative feature'] = collaborFea(artName,w)
 
         features.append(dict)
 
@@ -659,11 +659,11 @@ indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus/test'
 # testCase_squareBracket.txt
 # test = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_false_bracket0digit_try3.txt','w')
 # testsim = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_false_bracket0digit_try3_sim.txt','w')
-goodTuples = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/goodTuples.txt','w','utf-8')
-labNoMat = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_labelsNotMatch.txt','w','utf-8')
-npovLst = codecs.open("/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/npov_words.txt","w","utf-8")
-
-# good tuple num in training set
+# goodTuples = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/goodTuples.txt','w','utf-8')
+# labNoMat = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_labelsNotMatch.txt','w','utf-8')
+# npovLst = codecs.open("/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/npov_words.txt","w","utf-8")
+# senWlEditWl = codecs.open("/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/senWlEditWl.txt","w","utf-8")
+## good tuple num in training set
 l=0
 
 #feature prepare
@@ -692,7 +692,7 @@ features = []
 line_num = 0
 artNpovDict = {}
 freqArtName = ''
-# npovlist = []
+
 start = timeit.timeit()
 for line in gram5_train:
     line = line.decode('utf8')
@@ -706,35 +706,34 @@ for line in gram5_train:
             if not check5gram(nline[6]) and not check5gram(nline[7]):
                 n = nline[6].strip(string.punctuation).lower()
                 m = nline[7].strip(string.punctuation).lower()
-                # m = nline[7].strip('.,/"=:<>').lower()
+
                 if edit_distance(n, m)>=4:
                     if not brackets0digit(nline[6]) or not brackets0digit(nline[7]):
-                        str1 = strippedNoSquBrac(nline[6]) # no {{ or <
+                        str1 = strippedNoSquBrac(nline[6]) ## no {{ or <
                         str2 = strippedNoSquBrac(nline[7])
                         if not checkSquarBrac(str1,str2):
 
-                            # test_nline8.write(nline[8])
-                            # print nline[8]
+
                             st1 = strip_tags(nline[8])
-                            # print st1
+
                             st2 = strip_http(st1)
-                            # print st2
+
                             st3 = strippedNoSquBrac(st2)
                             st4 = squrBracParse(st3)
-                            # test_nline8.write(' -------->  '+st4+'\n')
+
                             senWl = dataItemParser(st4)
                             et1 = strip_tags(nline[6])
                             et2 = strip_http(et1)
                             et3 = strippedNoSquBrac(et2)
-                            # print str(l)+": "+ et3
+
                             et4 = squrBracParse(et3)
-                            # print str(l)+ ": "+et4
+
                             editWl = dataItemParser(et4) #
-                            #generate label list
+                            ## generate label list
                             filterChinese(senWl,editWl)
                             senWl = filter(None, [one for one in senWl])
                             editWl = filter(None, [one for one in editWl])
-                            #filter [ or ] in senWl and editWl
+                            ## filter [ or ] in senWl and editWl
                             for ps,qs in enumerate(senWl):
                                 senWl[ps] = re.sub(r'[\[.*?\]]','',qs)
                             for pd,qd in enumerate(editWl):
@@ -747,65 +746,63 @@ for line in gram5_train:
 
 
                             if va == -1:
-                                labNoMat.write(line+'\n')
-                                # print nline[6]+' ----> '+nline[7]
+                                pass
+                                # labNoMat.write(line+'\n')
+
                             else:
-                                # final good tuple
+                                ## final good tuple
                                 l += 1
-                                # calculate frequency
+                                ## calculate frequency
                                 for w in editWl:
                                     if npovdict.has_key(w):
                                         npovdict[w] += 1
                                     else:
                                         npovdict[w] = 1
-                                goodTuples.write(line+'\n')
+                                # goodTuples.write(line+'\n')
+                                # senWlEditWl.write(str(editWl)+" -----> "+str(senWl)+'\n')
 
 
-                                # frequency of specific article：当senWl
-                                # if (freqArtName != nline[0]) and (nline[0] in artNpovDict) and any(k in artNpovDict[nline[0]] for k in senWl):
+                                ## frequency of specific article：当senWl
+                                ## if (freqArtName != nline[0]) and (nline[0] in artNpovDict) and any(k in artNpovDict[nline[0]] for k in senWl):
                                 # if freqArtName != nline[0]:
                                 #     # all words in this article nline[0]
                                 #     freqArtDict = getCount(nline[0])
                                 #
                                 #     freqArtName = nline[0]
 
-                                # features generation
-                                # featureGen30(nline[0],senWl)
+                                ## features generation
+                                featureGen30(nline[0],senWl)
 
-                                # generate a global npov dict for specific article; key: article name; val: dict of npov word and freq
+                                ## generate a global npov dict for specific article; key: article name; val: dict of npov word and freq
                                 # articleNpov(nline[0],editWl)
 end = timeit.timeit()
 print end - start
 
-# write npov words to file
-
-for key,val in enumerate(npovdict):
-    print >>npovLst, key+'\t'+val
+## write npov words to file
+# json.dump(npovdict,npovLst)
 
 
 print "good tuples:"+str(l)
 print "labels:"+str(len(labels))
-# print "features:"+str(len(features))
+print "features:"+str(len(features))
 # print features
-# w = csv.writer(codecs.open("outputFeatures.csv","w","utf-8"))
-# for one in features:
-#     for key, val in one.items():
-#         w.writerow([key,val])
+
 print "######features#####"
 # print features
 print "##labels##"
 # print labels
 
-# with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst.json','w') as fp:
-#     json.dump(features,fp)
+with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst_WORD_LEMMA_POS.json','w') as fp:
+    json.dump(features,fp)
 
-with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/labels_lst.json','w') as fl:
-    json.dump(labels,fl)
+# with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/labels_lst.json','w') as fl:
+#     json.dump(labels,fl)
 
 
 # test.close()
 # testsim.close()
 gram5_train.close()
-goodTuples.close()
-labNoMat.close()
+# goodTuples.close()
+# labNoMat.close()
+# senWlEditWl.close()
 # fea.close()
