@@ -16,6 +16,11 @@ import timeit
 import codecs
 import json
 import csv
+from collections import defaultdict
+import pandas as pd
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+import xml.etree.ElementTree as ET
 
 LHan = [[0x2E80, 0x2E99],    # Han # So  [26] CJK RADICAL REPEAT, CJK RADICAL RAP
         [0x2E9B, 0x2EF3],    # Han # So  [89] CJK RADICAL CHOKE, CJK RADICAL C-SIMPLIFIED TURTLE
@@ -455,9 +460,21 @@ def checkNpov(w):
     else:
         return False
 
-def collaborFea(w):
-    if w in npovdict:
-        return npovdict[w]
+def getFreqArt(w):
+    print freqArtDict['the']
+    print "freq of " + w+" : "+str(freqArtDict[w])
+
+    return freqArtDict[w]
+
+def collaborFea(artName,w):
+    if artName in artNpovDict:
+        if w in artNpovDict[artName]:
+            num = artNpovDict[artName][w]
+            denom = getFreqArt(w)
+            # denom could not be zero
+            return float(num)/denom
+        else:
+            return 0
     else:
         return 0
 
@@ -469,9 +486,29 @@ def filterChinese(senWl,editWl):
     for i,ev in enumerate(editWl):
         editWl[i] = RE.sub('',ev)
 
-def featureGen30(senWl):
+def articleNpov(artName,editWl):
+    if not editWl:
+        return # if editWl empyty, do nothing
+    if artName in artNpovDict:
+        for e in editWl:
+            if e in artNpovDict[artName]:
+                artNpovDict[artName][e] += 1
+            else:
+                artNpovDict[artName][e] = 1
+    else:
+        artNpovDict[artName] = {}
+        for e in editWl:
+            artNpovDict[artName][e] = 1
+
+
+
+def featureGen30(artName,senWl):
     if not senWl:
         return
+
+    # generate a global npov dict for specific article; key: article name; val: dict of npov word and freq
+
+
     wordnet_lemmatizer = WordNetLemmatizer()
 
     RE = build_re()
@@ -568,22 +605,61 @@ def featureGen30(senWl):
         #f31
         dict['Bias lexicon'] = checkNpov(w)
         #f32
-        dict['Collaborative feature'] = collaborFea(w)
+        dict['Collaborative feature'] = collaborFea(artName,w)
 
         features.append(dict)
 
+def getCount(artName):
+    # process article
+    artLst = []
+    artDict = {}
+    # indir is a global address for article
+    for fn in os.listdir(indir):
+        if not fn.endswith('.xml'): continue
+        fullname = os.path.join(indir, fn)
+
+        if os.path.isfile(fullname):
+            tree = ET.parse(fullname)
+            root = tree.getroot()
+            # print root.tag
+            page = root.find('{http://www.mediawiki.org/xml/export-0.7/}page')
+            # print page.tag
+            title = page.find('{http://www.mediawiki.org/xml/export-0.7/}title')
+
+            if title.text == artName:
+                # found article
+
+                # article to list
+
+                revisions = page.findall('{http://www.mediawiki.org/xml/export-0.7/}revision')
+                # print page[3]
+                for s in revisions:
+                    # id = s.find('{http://www.mediawiki.org/xml/export-0.7/}id')
+                    # print id.text
+                    txt = s.find('{http://www.mediawiki.org/xml/export-0.7/}text')
+                    # print txt.text
+                    artLst.append(txt.text)
+                # print len(artLst)
+                vectorizer = CountVectorizer(min_df = 1)
+                X = vectorizer.fit_transform(artLst)
+                # word_freq_df = pd.DataFrame({'term': vectorizer.get_feature_names(), 'occurrences':np.asarray(X.sum(axis=0)).ravel().tolist()})
+                # word_freq_df['frequency'] = word_freq_df['occurrences']/np.sum(word_freq_df['occurrences'])
+                # print word_freq_df.sort('occurrences',ascending = False).head()
+                artDict = dict(zip(vectorizer.get_feature_names(),np.asarray(X.sum(axis=0)).ravel()))
+                return artDict
+
 ### main function ###
 
-# gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-train.tsv','r')
-gram5_train = open('/Users/wxbks/Downloads/test.txt','r')
+gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-train.tsv','r')
+# gram5_train = open('/Users/wxbks/Downloads/test.txt','r')
 
 # gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/PalestinianTerrorists.txt','r')
-
+indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus/test'
 
 # testCase_squareBracket.txt
 # test = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_false_bracket0digit_try3.txt','w')
 # testsim = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_false_bracket0digit_try3_sim.txt','w')
-test_nline8 = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_nline8.txt','w','utf-8')
+goodTuples = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/goodTuples.txt','w','utf-8')
 labNoMat = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_labelsNotMatch.txt','w','utf-8')
 npovLst = codecs.open("/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/npov_words.txt","w","utf-8")
 
@@ -594,7 +670,7 @@ l=0
 # f19; fill entail set
 stop = stopwords.words('english')
 # entailLst = entailfeaturePrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/reverb_local_global/Resource0812/reverb_local_clsf_all.txt')
-HedgeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/hedges_hyland2005.txt','r','utf-8') if ('#' not in line)])
+# HedgeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/hedges_hyland2005.txt','r','utf-8') if ('#' not in line)])
 # FactiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/factives_hooper1975.txt','r','utf-8') if ('#' not in line)])
 # AssertiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/assertives_hooper1975.txt','r','utf-8') if ('#' not in line)])
 # ImplicativeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/implicatives_karttunen1971.txt','r','utf-8') if ('#' not in line)])
@@ -609,11 +685,13 @@ os.environ['STANFORD_PARSER'] = '/Users/wxbks/Downloads/stanford-parser-full-201
 os.environ['STANFORD_MODELS'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
 parser = stanford.StanfordParser(model_path="/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/stanford-parser-3.4.1-models/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
 
-
+freqArtDict = {}
 npovdict = {}
 labels = []
 features = []
 line_num = 0
+artNpovDict = {}
+freqArtName = ''
 # npovlist = []
 start = timeit.timeit()
 for line in gram5_train:
@@ -656,6 +734,11 @@ for line in gram5_train:
                             filterChinese(senWl,editWl)
                             senWl = filter(None, [one for one in senWl])
                             editWl = filter(None, [one for one in editWl])
+                            #filter [ or ] in senWl and editWl
+                            for ps,qs in enumerate(senWl):
+                                senWl[ps] = re.sub(r'[\[.*?\]]','',qs)
+                            for pd,qd in enumerate(editWl):
+                                editWl[pd] = re.sub(r'[\[.*?\]]','',qd)
                             print "editWl"
                             print editWl
                             print "senWl"
@@ -675,38 +758,54 @@ for line in gram5_train:
                                         npovdict[w] += 1
                                     else:
                                         npovdict[w] = 1
-                                test_nline8.write(line+'\n')
+                                goodTuples.write(line+'\n')
+
+
+                                # frequency of specific article：当senWl
+                                # if (freqArtName != nline[0]) and (nline[0] in artNpovDict) and any(k in artNpovDict[nline[0]] for k in senWl):
+                                # if freqArtName != nline[0]:
+                                #     # all words in this article nline[0]
+                                #     freqArtDict = getCount(nline[0])
+                                #
+                                #     freqArtName = nline[0]
+
                                 # features generation
-                                featureGen30(senWl)
+                                # featureGen30(nline[0],senWl)
+
+                                # generate a global npov dict for specific article; key: article name; val: dict of npov word and freq
+                                # articleNpov(nline[0],editWl)
 end = timeit.timeit()
 print end - start
 
 # write npov words to file
 
-for key in npovdict:
-    print >>npovLst, key
+for key,val in enumerate(npovdict):
+    print >>npovLst, key+'\t'+val
 
 
 print "good tuples:"+str(l)
 print "labels:"+str(len(labels))
-print "features:"+str(len(features))
-print features
+# print "features:"+str(len(features))
+# print features
 # w = csv.writer(codecs.open("outputFeatures.csv","w","utf-8"))
 # for one in features:
 #     for key, val in one.items():
 #         w.writerow([key,val])
 print "######features#####"
-print features
+# print features
+print "##labels##"
+# print labels
 
-with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst.json','w') as fp:
-    json.dump(features,fp)
+# with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst.json','w') as fp:
+#     json.dump(features,fp)
 
-
+with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/labels_lst.json','w') as fl:
+    json.dump(labels,fl)
 
 
 # test.close()
 # testsim.close()
 gram5_train.close()
-test_nline8.close()
+goodTuples.close()
 labNoMat.close()
 # fea.close()
