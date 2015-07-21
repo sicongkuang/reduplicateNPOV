@@ -629,7 +629,7 @@ def getCount(artName):
                 for s in revisions:
                     txt = s.find('{http://www.mediawiki.org/xml/export-0.7/}text')
                     artLst.append(txt.text)
-                vectorizer = CountVectorizer(min_df=1,token_pattern='(?u)\\b\\w+\\b')
+                vectorizer = CountVectorizer(min_df=1,token_pattern='([^\[\|\]\s\.\!\=\{\}\;\<\>\?\"\'\#\(\)\,]+)',lowercase=False)
                 artLst = filter(None,[one for one in artLst])
                 X = vectorizer.fit_transform(artLst)
                 artDict = dict(zip(vectorizer.get_feature_names(),np.asarray(X.sum(axis=0)).ravel()))
@@ -637,12 +637,12 @@ def getCount(artName):
 
 ### main function ###
 
-# gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-train.tsv','r')
-gram5_train = open('/Users/wxbks/Downloads/test1.txt','r')
+gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-train.tsv','r')
+# gram5_train = open('/Users/wxbks/Downloads/test1.txt','r')
 
 # gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/PalestinianTerrorists.txt','r')
-# indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus/npov-train/'
-indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus/test/'
+indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus/npov-train/'
+# indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus/test/'
 
 # test = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_false_bracket0digit_try3.txt','w')
 # testsim = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_false_bracket0digit_try3_sim.txt','w')
@@ -788,6 +788,8 @@ print "##labels##"
 with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst_f32CollaborativeFea.json','w') as fp:
     json.dump(features,fp)
 
+# with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/articleNpovDict.json','w') as f:
+#     json.dump(artNpovDict,f)
 # with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/labels_lst.json','w') as fl:
 #     json.dump(labels,fl)
 
