@@ -1,0 +1,197 @@
+POS-1,
+POS-2,
+Word,August
+Grammatical relation,root
+POS,NNP
+Position in sentence,start
+Hedge in context,False
+Lemma,August
+POS+2,RB
+POS+1,IN
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,NNP
+POS-2,
+Word,In
+Grammatical relation,case
+POS,IN
+Position in sentence,start
+Hedge in context,False
+Lemma,In
+POS+2,DT
+POS+1,RB
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,IN
+POS-2,NNP
+Word,just
+Grammatical relation,advmod
+POS,RB
+Position in sentence,start
+Hedge in context,False
+Lemma,just
+POS+2,JJ
+POS+1,DT
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,RB
+POS-2,IN
+Word,the
+Grammatical relation,det
+POS,DT
+Position in sentence,start
+Hedge in context,False
+Lemma,the
+POS+2,NN
+POS+1,JJ
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,DT
+POS-2,RB
+Word,fourth
+Grammatical relation,amod
+POS,JJ
+Position in sentence,start
+Hedge in context,False
+Lemma,fourth
+POS+2,IN
+POS+1,NN
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,JJ
+POS-2,DT
+Word,meeting
+Grammatical relation,nmod
+POS,NN
+Position in sentence,start
+Hedge in context,False
+Lemma,meeting
+POS+2,NNS
+POS+1,IN
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,NN
+POS-2,JJ
+Word,of
+Grammatical relation,case
+POS,IN
+Position in sentence,start
+Hedge in context,False
+Lemma,of
+POS+2,IN
+POS+1,NNS
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,IN
+POS-2,NN
+Word,pitcher]]s
+Grammatical relation,nmod
+POS,NNS
+Position in sentence,start
+Hedge in context,False
+Lemma,pitcher]]s
+POS+2,DT
+POS+1,IN
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,NNS
+POS-2,IN
+Word,with
+Grammatical relation,case
+POS,IN
+Position in sentence,start
+Hedge in context,False
+Lemma,with
+POS+2,JJ
+POS+1,DT
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,IN
+POS-2,NNS
+Word,the
+Grammatical relation,det
+POS,DT
+Position in sentence,start
+Hedge in context,False
+Lemma,the
+POS+2,JJ
+POS+1,JJ
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,DT
+POS-2,IN
+Word,same
+Grammatical relation,amod
+POS,JJ
+Position in sentence,start
+Hedge in context,False
+Lemma,same
+POS+2,NN
+POS+1,JJ
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,JJ
+POS-2,DT
+Word,last
+Grammatical relation,amod
+POS,JJ
+Position in sentence,start
+Hedge in context,False
+Lemma,last
+POS+2,IN
+POS+1,NN
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,JJ
+POS-2,JJ
+Word,name
+Grammatical relation,nmod
+POS,NN
+Position in sentence,start
+Hedge in context,False
+Lemma,name
+POS+2,CD
+POS+1,IN
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,NN
+POS-2,JJ
+Word,since
+Grammatical relation,mark
+POS,IN
+Position in sentence,start
+Hedge in context,False
+Lemma,since
+POS+2,NN
+POS+1,CD
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,IN
+POS-2,NN
+Word,2000
+Grammatical relation,nummod
+POS,CD
+Position in sentence,start
+Hedge in context,False
+Lemma,2000
+POS+2,NNP
+POS+1,NN
+Collaborative feature,0
+Hedge,False
+Bias lexicon,False
+POS-1,CD
+POS-2,IN

@@ -16,19 +16,6 @@ import timeit
 import codecs
 import json
 import csv
-from collections import defaultdict
-import pandas as pd
-import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
-import xml.etree.ElementTree as ET
-import unicodedata
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
-replaceBlock = [[0x1200,0x137F],
-                [0x0080,0x00FF]]
-
 
 LHan = [[0x2E80, 0x2E99],    # Han # So  [26] CJK RADICAL REPEAT, CJK RADICAL RAP
         [0x2E9B, 0x2EF3],    # Han # So  [89] CJK RADICAL CHOKE, CJK RADICAL C-SIMPLIFIED TURTLE
@@ -44,31 +31,7 @@ LHan = [[0x2E80, 0x2E99],    # Han # So  [26] CJK RADICAL REPEAT, CJK RADICAL RA
         [0xFA30, 0xFA6A],    # Han # Lo  [59] CJK COMPATIBILITY IDEOGRAPH-FA30, CJK COMPATIBILITY IDEOGRAPH-FA6A
         [0xFA70, 0xFAD9],    # Han # Lo [106] CJK COMPATIBILITY IDEOGRAPH-FA70, CJK COMPATIBILITY IDEOGRAPH-FAD9
         [0x20000, 0x2A6D6],  # Han # Lo [42711] CJK UNIFIED IDEOGRAPH-20000, CJK UNIFIED IDEOGRAPH-2A6D6
-        [0x2F800, 0x2FA1D],
-        [0x2100, 0x214F]]  # Han # Lo [542] CJK COMPATIBILITY IDEOGRAPH-2F800, CJK COMPATIBILITY IDEOGRAPH-2FA1D
-
-def replaceBlk():
-    L = []
-    for i in replaceBlock:
-        if isinstance(i, list):
-            f, t = i
-            try:
-                f = unichr(f)
-                t = unichr(t)
-                L.append('%s-%s' % (f, t))
-            except:
-                pass # A narrow python build, so can't use chars > 65535 without surrogate pairs!
-
-        else:
-            try:
-                L.append(unichr(i))
-            except:
-                pass
-
-    RE = '[%s]' % ''.join(L)
-    # print 'RE:', RE.encode('utf-8')
-    return re.compile(RE, re.UNICODE)
-
+        [0x2F800, 0x2FA1D]]  # Han # Lo [542] CJK COMPATIBILITY IDEOGRAPH-2F800, CJK COMPATIBILITY IDEOGRAPH-2FA1D
 
 def build_re():
     L = []
@@ -133,7 +96,7 @@ def editsWordsList(str):
     wordl = filter(None,[word.strip(string.punctuation)
                  for word in str.replace(';','; ').split()
                  ])
-    # print wordl
+    print wordl
     return wordl
 
 def editsLess(num):
@@ -343,10 +306,12 @@ def dataItemParser(str):
             wl[ins] = res[-1]
     return wl
 
+# def contains_sublist(lst, sublst):
+#     n = len(sublst)
+#     return any((sublst == lst[i:i+n]) for i in xrange(len(lst)-n+1))
 
 def contains_sublist(lst, sublst):
-    lst = filter(None, [one for one in lst])
-    sublst = filter(None, [one for one in sublst])
+
     if not sublst:
         for i in xrange(len(lst)):
             labels.append((lst[i],0))
@@ -356,18 +321,31 @@ def contains_sublist(lst, sublst):
     if any((sublst == lst[i:i+n]) for i in xrange(m-n+1)):
         pass
     else:
+        # print "no match!"
+
+        # print str(l)+": "+str(lst) + "--->" + str(sublst)
 
         return -1
 
-    d = [0] * len(lst)
-
     for i in xrange(m-n+1):
         if sublst == lst[i:i+n]:
-            d[i:i+n] = [1] * n
+            t=0
+            while t < i:
+                # print lst(t)
+                labels.append((lst[t],0))
+                # print "lst index:"+str(t)+"; "+ "lst val: "+ str(lst[t])
+                t += 1
+            while t < i + n:
 
-    for k in zip(lst,d):
-        labels.append(k)
+                labels.append((lst[t],1))
+                # print "lst index:"+str(t)+"; "+ "lst val: "+ str(lst[t])
+                t += 1
+            while t < (len(lst)):
+                labels.append((lst[t],0))
+                # print "lst index:"+str(t)+"; "+ "lst val: "+ str(lst[t])
+                t += 1
     return 0
+
 
 def postionInSentence(s, i, n=3):
     '''
@@ -407,26 +385,21 @@ def contextCheck(checkLst,senWl,i):
     if slen == 1:
         return False
     if i - 1 >= 0 and i - 1 <= slen - 1:
-        w = senWl[i - 1].lower()
-        if w in checkLst:
+        if senWl[i - 1] in checkLst:
             return True
     if i + 1 >= 0 and i + 1 <= slen - 1:
-        w = senWl[i + 1].lower()
-        if w in checkLst:
+        if senWl[i + 1] in checkLst:
             return True
     if i - 2 >= 0 and i - 2 <= slen - 1:
-        w = senWl[i - 2].lower()
-        if w in checkLst:
+        if senWl[i - 2] in checkLst:
             return True
     if i + 2 >= 0 and i + 2 <= slen - 1:
-        w = senWl[i + 2].lower()
-        if w in checkLst:
+        if senWl[i + 2] in checkLst:
             return True
     return False
 
 def wordCheck(checkLst,w):
     # checkLst = filter(None,[ line.rstrip() for line in open(path) if ('#' not in line)])
-    w = w.lower()
     if w in checkLst:
         return True
     else:
@@ -471,44 +444,20 @@ def polarityPrepare(path):
     return dict
 
 def polarityCheck(dict,w):
-    w = w.lower()
     if w in dict:
         return dict[w]
     else:
-        return 'NA'
+        return None
 
 def checkNpov(w):
-    w = w.lower()
     if w in npovdict:
         return True
     else:
         return False
 
-def getFreqArt(w):
-    # print freqArtDict['the']
-    # print "freq of " + w+" : "+str(freqArtDict[w])
-    try:
-        f = freqArtDict[w]
-    except KeyError, e:
-        print 'I got a Key Error - the word could not found in article is: %s' % w
-        editWordNotFoundArticle.append(w)
-        return -1
-    return f
-
-def collaborFea(artName,w):
-    if artName in artNpovDict:
-        if w in artNpovDict[artName]:
-            num = artNpovDict[artName][w]
-            print w + " 's bias freq(num): "+str(num)
-            denom = getFreqArt(w)
-            if denom == -1:
-                return 0
-            else:
-                print w+" 's freq in all revisions(denom): "+str(denom)
-            # denom could not be zero
-                return float(num)/denom
-        else:
-            return 0
+def collaborFea(w):
+    if w in npovdict:
+        return npovdict[w]
     else:
         return 0
 
@@ -519,95 +468,65 @@ def filterChinese(senWl,editWl):
         senWl[i] = RE.sub('',ev)
     for i,ev in enumerate(editWl):
         editWl[i] = RE.sub('',ev)
-## comment for looking for parser when running other features. but good and using func
-def replaceBlkParse(lst):
-    res = []
-    blk = replaceBlk()
-    fakeLst = list(lst)
-    for i,ev in enumerate(fakeLst):
 
-        fakeLst[i] = blk.sub(u'\u12a6',ev)
-    sentences = parser.parse(fakeLst)
-    s=""
-    for line in sentences:
-        for sentence in line:
-            s+=str(sentence)
-
-    sent = sd.convert_tree(s)
-    for i,w in enumerate(lst):
-        res.append(sent[i][7])
-    return res
-
-
-def articleNpov(artName,editWl):
-    if not editWl:
-        return # if editWl empyty, do nothing
-    if artName in artNpovDict:
-        for e in editWl:
-            if e in artNpovDict[artName]:
-                artNpovDict[artName][e] += 1
-            else:
-                artNpovDict[artName][e] = 1
-    else:
-        artNpovDict[artName] = {}
-        for e in editWl:
-            artNpovDict[artName][e] = 1
-
-
-
-def featureGen30(artName,senWl):
+def featureGen30(senWl):
     if not senWl:
         return
+    # generate a global npov dict for specific article; key: article name; val: dict of npov word and freq
 
+    wordnet_lemmatizer = WordNetLemmatizer()
 
-
-
-    # wordnet_lemmatizer = WordNetLemmatizer() # for feature 2
-
-
+    RE = build_re()
+    for i,ev in enumerate(senWl):
+        senWl[i] = RE.sub('',ev)
     senWl = filter(None, [one for one in senWl])
     slen = len(senWl)
-    # gr = replaceBlkParse(senWl) # for feature 30 gramatical relation
+    sentences = parser.parse(senWl)
+    sen = ""
+    for line in sentences:
+        for sentence in line:
+            sen += str(sentence)
+    sent = sd.convert_tree(sen)
 
     for i,w in enumerate(senWl):
         dict = {}
         # f1
         dict['Word'] = w
-        # # #f2
-        # dict['Lemma'] = wordnet_lemmatizer.lemmatize(w)
-        # r = nltk.pos_tag([w])
-        # # #f3
-        # dict['POS'] = r[0][1]
-        # # #f4
-        # if (i - 1) >= 0 and (i - 1) <= slen - 1:
-        #     rm1 = nltk.pos_tag([senWl[i-1]])
-        #     dict['POS-1'] = rm1[0][1]
-        # else:
-        #     dict['POS-1'] = None
-        # # #f5
-        # if (i + 1) >= 0 and (i + 1) <= slen - 1:
-        #     rp1 = nltk.pos_tag([senWl[i+1]])
-        #     dict['POS+1'] = rp1[0][1]
-        # else:
-        #     dict['POS+1'] = None
-        # # #f6
-        # if (i - 2) >= 0 and (i - 2) <= slen - 1:
-        #     rm2 = nltk.pos_tag([senWl[i-2]])
-        #     dict['POS-2'] = rm2[0][1]
-        # else:
-        #     dict['POS-2'] = None
-        # # #f7
-        # if (i + 2) >= 0 and (i + 2) <= slen - 1:
-        #     rp2 = nltk.pos_tag([senWl[i+2]])
-        #     dict['POS+2'] = rp2[0][1]
-        # else:
-        #     dict['POS+2'] = None
+        #f2
+        dict['Lemma'] = wordnet_lemmatizer.lemmatize(w)
+        r = nltk.pos_tag([w])
+        #f3
+        dict['POS'] = r[0][1]
+        #f4
+        if (i - 1) >= 0 and (i - 1) <= slen - 1:
+            rm1 = nltk.pos_tag([senWl[i-1]])
+            dict['POS-1'] = rm1[0][1]
+        else:
+            dict['POS-1'] = None
+        #f5
+        if (i + 1) >= 0 and (i + 1) <= slen - 1:
+            rp1 = nltk.pos_tag([senWl[i+1]])
+            dict['POS+1'] = rp1[0][1]
+        else:
+            dict['POS+1'] = None
+        #f6
+        if (i - 2) >= 0 and (i - 2) <= slen - 1:
+            rm2 = nltk.pos_tag([senWl[i-2]])
+            dict['POS-2'] = rm2[0][1]
+        else:
+            dict['POS-2'] = None
+        #f7
+        if (i + 2) >= 0 and (i + 2) <= slen - 1:
+            rp2 = nltk.pos_tag([senWl[i+2]])
+            dict['POS+2'] = rp2[0][1]
+        else:
+            dict['POS+2'] = None
         #f8
-        # dict['Position in sentence'] = postionInSentence(slen,i)
+        dict['Position in sentence'] = postionInSentence(slen,i)
         #f9
-        # dict['Hedge'] = wordCheck(HedgeLst,w)
+        dict['Hedge'] = wordCheck(HedgeLst,w)
         #f10
-        # dict['Hedge in context'] = contextCheck(HedgeLst, senWl,i)
+        dict['Hedge in context'] = contextCheck(HedgeLst, senWl,i)
         #f11
         # dict['Factive verb'] = wordCheck(FactiveLst,w)
         # #f12
@@ -647,77 +566,37 @@ def featureGen30(artName,senWl):
         # #f29
         # dict['Negative word in context'] = contextCheck(NegativeLst,senWl,i)
         #f30
-        # dict['Grammatical relation'] = gr[i]
+        dict['Grammatical relation'] = sent[i][7]
         #f31
         dict['Bias lexicon'] = checkNpov(w)
         #f32
-        # co = collaborFea(artName,w)
-        # dict['Collaborative feature'] = co
-        # print "word: "+w+" collaborFea:" + str(co)
+        dict['Collaborative feature'] = collaborFea(w)
 
         features.append(dict)
 
-def getCount(artName):
-    artLst = []
-    artDict = {}
-    for fn in os.listdir(indir):
-        if not fn.endswith('.xml'): continue
-        if ':' in fn:
-            fn = fn.replace(':','/')
-        fn = fn.decode('utf-8')
-        fn = unicodedata.normalize("NFC",fn)
-        newfn = fn[:-4]
-
-        if newfn == artName:
-            # print "found article begin processing"
-            print fn
-            if '/' in fn:
-                fn = fn.replace('/',':')
-            fullname = os.path.join(indir, fn)
-            tree = ET.parse(fullname)
-            root = tree.getroot()
-            page = root.find('{http://www.mediawiki.org/xml/export-0.7/}page')
-
-            revisions = page.findall('{http://www.mediawiki.org/xml/export-0.7/}revision')
-            for s in revisions:
-                txt = s.find('{http://www.mediawiki.org/xml/export-0.7/}text')
-                artLst.append(txt.text)
-            artLst = filter(None,[one for one in artLst])
-            # print "processing done; begin counting"
-            vectorizer = CountVectorizer(min_df=1,token_pattern='([^\[\|\]\s\.\!\=\{\}\;\<\>\?\"\'\#\(\)\,\*]+)',lowercase=False)
-            X = vectorizer.fit_transform(artLst)
-            artDict = dict(zip(vectorizer.get_feature_names(),np.asarray(X.sum(axis=0)).ravel()))
-            return artDict
-    return -1
-
-
-
 ### main function ###
-start = timeit.timeit()
-gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-train.tsv','r')
-# gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-test.tsv','r')
 
-# gram5_train = open('/Users/wxbks/Downloads/test1.txt','r')
+# gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-train.tsv','r')
+gram5_train = open('/Users/wxbks/Downloads/test.txt','r')
 
 # gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/PalestinianTerrorists.txt','r')
-# indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus_bak/npov-train/'
-indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus_bak/npov-test/'
-# indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus/test/'
 
+
+# testCase_squareBracket.txt
 # test = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_false_bracket0digit_try3.txt','w')
 # testsim = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_false_bracket0digit_try3_sim.txt','w')
-# goodTuples = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/goodTuples.txt','w','utf-8')
-# labNoMat = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_labelsNotMatch.txt','w','utf-8')
-# npovLst = codecs.open("/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/npov_words.txt","w","utf-8")
-# senWlEditWl = codecs.open("/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/senWlEditWl.txt","w","utf-8")
-## good tuple num in training set
+test_nline8 = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_nline8.txt','w','utf-8')
+labNoMat = codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_labelsNotMatch.txt','w','utf-8')
+npovLst = codecs.open("/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/npov_words.txt","w","utf-8")
+
+# good tuple num in training set
 l=0
 
 #feature prepare
 # f19; fill entail set
 stop = stopwords.words('english')
 # entailLst = entailfeaturePrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/reverb_local_global/Resource0812/reverb_local_clsf_all.txt')
-# HedgeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/hedges_hyland2005.txt','r','utf-8') if ('#' not in line)])
+HedgeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/hedges_hyland2005.txt','r','utf-8') if ('#' not in line)])
 # FactiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/factives_hooper1975.txt','r','utf-8') if ('#' not in line)])
 # AssertiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/assertives_hooper1975.txt','r','utf-8') if ('#' not in line)])
 # ImplicativeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/bias_related_lexicons/implicatives_karttunen1971.txt','r','utf-8') if ('#' not in line)])
@@ -727,156 +606,110 @@ stop = stopwords.words('english')
 # PolarityDict = polarityPrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff')
 # PosiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/opinion-lexicon-English/positive-words.txt','r','utf-8') if (';' not in line)])
 # NegativeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/opinion-lexicon-English/negative-words.txt','r') if (';' not in line)])
-# sd = StanfordDependencies.get_instance(backend="subprocess")
-# os.environ['STANFORD_PARSER'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
-# os.environ['STANFORD_MODELS'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
-# parser = stanford.StanfordParser(model_path="/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/stanford-parser-3.4.1-models/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
-npovdict = {}
-with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/npov_words_lemma_2_downcase.json') as t:
-    npovdict = json.load(t)
-# print HedgeLst
-freqArtDict = {}
+sd = StanfordDependencies.get_instance(backend="subprocess")
+os.environ['STANFORD_PARSER'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
+os.environ['STANFORD_MODELS'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
+parser = stanford.StanfordParser(model_path="/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/stanford-parser-3.4.1-models/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
 
+
+npovdict = {}
 labels = []
 features = []
 line_num = 0
-artNpovDict = {}
-freqArtName = ''
-editWordNotFoundArticle = []
-# senWlLen = []
-senWlList = []
-
+# npovlist = []
+start = timeit.timeit()
 for line in gram5_train:
     line = line.decode('utf8')
     line = line.rstrip('\n')
     nline = line.split('\t')
     line_num += 1
     print line_num
-
+    print nline
     if nline[3] == 'true':
         if not checkHttpOnly(nline[6], nline[7]):
             if not check5gram(nline[6]) and not check5gram(nline[7]):
                 n = nline[6].strip(string.punctuation).lower()
                 m = nline[7].strip(string.punctuation).lower()
-
+                # m = nline[7].strip('.,/"=:<>').lower()
                 if edit_distance(n, m)>=4:
                     if not brackets0digit(nline[6]) or not brackets0digit(nline[7]):
-                        str1 = strippedNoSquBrac(nline[6]) ## no {{ or <
+                        str1 = strippedNoSquBrac(nline[6]) # no {{ or <
                         str2 = strippedNoSquBrac(nline[7])
                         if not checkSquarBrac(str1,str2):
 
-
+                            # test_nline8.write(nline[8])
+                            # print nline[8]
                             st1 = strip_tags(nline[8])
-
+                            # print st1
                             st2 = strip_http(st1)
-
+                            # print st2
                             st3 = strippedNoSquBrac(st2)
                             st4 = squrBracParse(st3)
-
+                            # test_nline8.write(' -------->  '+st4+'\n')
                             senWl = dataItemParser(st4)
                             et1 = strip_tags(nline[6])
                             et2 = strip_http(et1)
                             et3 = strippedNoSquBrac(et2)
-
+                            # print str(l)+": "+ et3
                             et4 = squrBracParse(et3)
-
+                            # print str(l)+ ": "+et4
                             editWl = dataItemParser(et4) #
-                            ## generate label list
+                            #generate label list
                             filterChinese(senWl,editWl)
-
-                            ## filter [ or ] in senWl and editWl
-                            for ps,qs in enumerate(senWl):
-                                senWl[ps] = re.sub(r'[\[.*?\]]','',qs)
-                            for pd,qd in enumerate(editWl):
-                                editWl[pd] = re.sub(r'[\[.*?\]]','',qd)
-
                             senWl = filter(None, [one for one in senWl])
                             editWl = filter(None, [one for one in editWl])
-
                             print "editWl"
                             print editWl
                             print "senWl"
                             print senWl
-
-                            ## stop processing string
                             va = contains_sublist(senWl,editWl)
 
 
                             if va == -1:
-                                pass
-                                # labNoMat.write(line+'\n')
-
+                                labNoMat.write(line+'\n')
+                                # print nline[6]+' ----> '+nline[7]
                             else:
-                                ## final good tuple
+                                # final good tuple
                                 l += 1
-                                ## calculate frequency
-                                # for w in editWl:
-                                #     if npovdict.has_key(w):
-                                #         npovdict[w] += 1
-                                #     else:
-                                #         npovdict[w] = 1
-                                # goodTuples.write(line+'\n')
-                                # senWlEditWl.write(str(editWl)+" -----> "+str(senWl)+'\n')
-                                # senWlLen.append(len(senWl))
-                                # senWlList.append(senWl)
 
-                                ## frequency of specific article：当senWl
-                                ## if (freqArtName != nline[0]) and (nline[0] in artNpovDict) and any(k in artNpovDict[nline[0]] for k in senWl):
-                                # if freqArtName != nline[0]:
-                                #     # all words in this article nline[0]
-                                #     freqArtDict = getCount(nline[0])
-                                #     if freqArtDict == -1:
-                                #         print "did not find article %s" % (nline[0])
-                                #
-                                #     freqArtName = nline[0]
-                                #     print "done with article frequency."
-                                # else:
-                                #     print "still same article"
-
-                                ## features generation
+                                # calculate frequency
+                                for w in editWl:
+                                    if npovdict.has_key(w):
+                                        npovdict[w] += 1
+                                    else:
+                                        npovdict[w] = 1
+                                test_nline8.write(line+'\n')
+                                # features generation
                                 featureGen30(nline[0],senWl)
-
-                                ## generate a global npov dict for specific article; key: article name; val: dict of npov word and freq
-                                # articleNpov(nline[0],editWl)
 end = timeit.timeit()
 print end - start
 
-## write npov words to file
-# json.dump(npovdict,npovLst)
+# write npov words to file
+
+for key in npovdict:
+    print >>npovLst, key
 
 
 print "good tuples:"+str(l)
 print "labels:"+str(len(labels))
 print "features:"+str(len(features))
-# print features
-
+print features
+# w = csv.writer(codecs.open("outputFeatures.csv","w","utf-8"))
+# for one in features:
+#     for key, val in one.items():
+#         w.writerow([key,val])
 print "######features#####"
-# print features
-print "##labels##"
-# print labels
+print features
 
-# with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/testdata_features_lst_f32CollaborativeFea.json','w') as fp:
-#     json.dump(features,fp)
-# with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst_f32CollaborativeFea_editWordNotFoundArticle.json','w') as f:
-#     json.dump(editWordNotFoundArticle,f)
-# print editWordNotFoundArticle
-# with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/articleNpovDict.json','w') as f:
-#     json.dump(artNpovDict,f)
-# with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/testdata_labels_lst.json','w') as fl:
-#     json.dump(labels,fl)
-# with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/senWlLen_lst.json','w') as fl:
-#     json.dump(senWlLen,fl)
-with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst_f25_downCase2Lema.json','w') as fl:
-    json.dump(features,fl)
-# print "numble of senWl:"+str(len(senWlLen))
-# sum=0
-# for i in senWlLen:
-#     sum += i
-# print sum
+with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst.json','w') as fp:
+    json.dump(features,fp)
+
+
+
+
 # test.close()
 # testsim.close()
 gram5_train.close()
-# goodTuples.close()
-# labNoMat.close()
-# senWlEditWl.close()
+test_nline8.close()
+labNoMat.close()
 # fea.close()
