@@ -567,7 +567,7 @@ def featureGen30(artName,senWl):
 
     senWl = filter(None, [one for one in senWl])
     slen = len(senWl)
-    # gr = replaceBlkParse(senWl) # for feature 30 gramatical relation
+    gr = replaceBlkParse(senWl) # for feature 30 gramatical relation
 
     for i,w in enumerate(senWl):
         dict = {}
@@ -647,9 +647,9 @@ def featureGen30(artName,senWl):
         # #f29
         # dict['Negative word in context'] = contextCheck(NegativeLst,senWl,i)
         #f30
-        # dict['Grammatical relation'] = gr[i]
+        dict['Grammatical relation'] = gr[i]
         #f31
-        dict['Bias lexicon'] = checkNpov(w)
+        # dict['Bias lexicon'] = checkNpov(w)
         #f32
         # co = collaborFea(artName,w)
         # dict['Collaborative feature'] = co
@@ -694,14 +694,14 @@ def getCount(artName):
 
 ### main function ###
 start = timeit.timeit()
-gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-train.tsv','r')
+gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gam-edits-train.tsv','r')
 # gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/5gram-edits-test.tsv','r')
 
 # gram5_train = open('/Users/wxbks/Downloads/test1.txt','r')
 
 # gram5_train = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/PalestinianTerrorists.txt','r')
 # indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus_bak/npov-train/'
-indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus_bak/npov-test/'
+# indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus_bak/npov-test/'
 # indir = '/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-corpus/test/'
 
 # test = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/test_false_bracket0digit_try3.txt','w')
@@ -727,13 +727,18 @@ stop = stopwords.words('english')
 # PolarityDict = polarityPrepare('/Volumes/Seagate Backup Plus Drive/npov_paper_data/subjectivity_clues_hltemnlp05/subjclueslen1-HLTEMNLP05.tff')
 # PosiveLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/opinion-lexicon-English/positive-words.txt','r','utf-8') if (';' not in line)])
 # NegativeLst = filter(None,[ line.rstrip() for line in codecs.open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/opinion-lexicon-English/negative-words.txt','r') if (';' not in line)])
-# sd = StanfordDependencies.get_instance(backend="subprocess")
-# os.environ['STANFORD_PARSER'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
-# os.environ['STANFORD_MODELS'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
-# parser = stanford.StanfordParser(model_path="/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/stanford-parser-3.4.1-models/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
-npovdict = {}
-with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/npov_words_lemma_2_downcase.json') as t:
-    npovdict = json.load(t)
+sd = StanfordDependencies.get_instance(backend="subprocess",version='3.4.1')
+os.environ['STANFORD_PARSER'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
+os.environ['STANFORD_MODELS'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
+parser = stanford.StanfordParser(model_path="/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/stanford-parser-3.4.1-models/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
+
+# os.environ['STANFORD_PARSER'] = '/Users/wxbks/Downloads/stanford-parser-2012-11-12/'
+# os.environ['STANFORD_MODELS'] = '/Users/wxbks/Downloads/stanford-parser-2012-11-12/'
+# parser = stanford.StanfordParser()
+# parser = stanford.StanfordParser(model_path="/Users/wxbks/Downloads/stanford-parser-2012-11-12/stanford-parser-2.0.4-models/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
+# npovdict = {}
+# with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/npov_words_lemma_2_downcase.json') as t:
+#     npovdict = json.load(t)
 # print HedgeLst
 freqArtDict = {}
 
@@ -745,6 +750,7 @@ freqArtName = ''
 editWordNotFoundArticle = []
 # senWlLen = []
 senWlList = []
+
 
 for line in gram5_train:
     line = line.decode('utf8')
@@ -866,7 +872,7 @@ print "##labels##"
 #     json.dump(labels,fl)
 # with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/senWlLen_lst.json','w') as fl:
 #     json.dump(senWlLen,fl)
-with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst_f25_downCase2Lema.json','w') as fl:
+with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/features_lst_f30_V341_stanfordTypedD.json','w') as fl:
     json.dump(features,fl)
 # print "numble of senWl:"+str(len(senWlLen))
 # sum=0

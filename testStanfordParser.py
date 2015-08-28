@@ -70,13 +70,17 @@ def build_re():
 ## filter out letterlike symbols
 
 
-sd = StanfordDependencies.get_instance(backend="subprocess")
-
+# sd = StanfordDependencies.get_instance(backend="subprocess",version='2.0.4',jar_filename = '/Users/wxbks/Downloads/stanford-parser-2012-11-12/')
+sd = StanfordDependencies.get_instance(backend="subprocess",version='3.4.1')
 os.environ['STANFORD_PARSER'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
 os.environ['STANFORD_MODELS'] = '/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/'
 
 parser = stanford.StanfordParser(model_path="/Users/wxbks/Downloads/stanford-parser-full-2014-08-27/stanford-parser-3.4.1-models/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
 
+# os.environ['STANFORD_PARSER'] = '/Users/wxbks/Downloads/stanford-parser-2012-11-12/'
+# os.environ['STANFORD_MODELS'] = '/Users/wxbks/Downloads/stanford-parser-2012-11-12/'
+# parser = stanford.StanfordParser()
+# parser = stanford.StanfordParser(model_path="/Users/wxbks/Downloads/stanford-parser-2012-11-12/stanford-parser-2.0.4-models/edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz")
 # lst = ["what","I", "love", "you",u"Víctor"]
 # lst = [u'Zoophilia', u'461109828', u'false', u'true', u'Plateau99', u'UNKNOWN',
 #        u'zoophilia,', u'zoosexuality', u"jpg|thumb|right|300px|[[Hokusai]], Katsushika (\u845b\u98fe\u5317\u658e) (1760\u20131849) ''[[The Dream of the Fisherman's Wife]]'']]== Terminology ==There are three terms that are most commonly used in regards to the subject: zoophilia, bestiality, and zoosexuality.", u"jpg|thumb|right|300px|[[Hokusai]], Katsushika (\u845b\u98fe\u5317\u658e) (1760\u20131849) ''[[The Dream of the Fisherman's Wife]]'']]== Terminology ==There are three terms that are most commonly used in regards to the subject: bestiality, zoosexuality and zoophilia."]
@@ -87,14 +91,14 @@ parser = stanford.StanfordParser(model_path="/Users/wxbks/Downloads/stanford-par
 # lst = [u'[[Hokusai', u'Katsushika', u'', u'1760\u20131849', u'The', u'Dream', u'of', u'the', u'Fisherman', u's', u'Wife', u'Terminology', u'There', u'are', u'three', u'terms', u'that', u'are', u'most', u'commonly', u'used', u'in', u'regards', u'to', u'the', u'subject', u'zoophilia', u'bestiality', u'and', u'zoosexuality']
 # lst = [u'[[Hokusai', u'Katsushika', u'', u'1760\u20131849', u'The', u'Dream', u'of', u'the', u'Fisherman', u's', u'Wife', u'Terminology', u'There', u'are', u'three', u'terms', u'that', u'are', u'most', u'commonly', u'used', u'in', u'regards', u'to', u'the', u'subject', u'zoophilia', u'bestiality', u'and', u'zoosexuality']
 # lst = [u'\u12a6\u122e\u121e', u'\u1361', u'\u1290\u133d\u1290\u1275\u1361', u'\u130d\u1295\u1263\u122d']
-lst = [u'\u12a6',u'\u1361']
+# lst = [u'\u12a6',u'\u1361']
 # lst = [u'by', u'Pavel', u'Felgenhauer', u'\xabNovaya', u'gazeta\xbb', u'\u2116', u'August', u'14', u'2008']
 # lst = [u'by', u'Pavel', u'Felgenhauer', u'\xabNovaya', u'gazeta\xbb', u'August', u'14', u'2008']
 # lst = [u'OLF', u'symbolThe', u'Oromo', u'Liberation', u'Front', u'Oromo', u'Adda', u'Bilisummaa', u'Oromoo', u'Amharic', u'\u12a6\u122e\u121e', u'\u1361', u'\u1290\u133d\u1290\u1275\u1361', u'\u130d\u1295\u1263\u122d', u'or', u'OLF', u'is', u'an', u'organization', u'established', u'in', u'by', u'Oromo', u'nationalists', u'to', u'promote', u'self-determination', u'for', u'the', u'Oromo', u'people', u'against', u'Abyssinian', u'colonial', u'rule']
 
 # print re.findall('[%s]' % zhon.hanzi.characters, 'I broke a plate: 我打破了一个盘子.')
-# lst = [u'\u1361',u'\u1290\u133d\u1290\u1275\u1361',u'\u130d\u1295\u1263\u122d']
-
+lst = [u'\u1361',u'\u1290\u133d\u1290\u1275\u1361',u'\u130d\u1295\u1263\u122d']
+# lst = ['tom','likes','to','eat','fish']
 
 # for t,tv in enumerate(lst):
 #     lst[t] = remove_control_chars(tv)
@@ -112,7 +116,8 @@ lst = filter(None,[i for i in lst])
 print lst
 sentences = parser.parse(lst)
 
-
+# sentences = parser.raw_parse_sents(("Hello, My name is Melroy.", "What is your name?"))
+# print sentences
 
 
 
@@ -120,6 +125,7 @@ sentences = parser.parse(lst)
 s=""
 for line in sentences:
     for sentence in line:
+        print str(sentence)
         s+=str(sentence)
 
 try:

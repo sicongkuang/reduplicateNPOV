@@ -10,7 +10,7 @@ from sklearn.feature_extraction import DictVectorizer
 #     trainY[g] = trainY[g][1]
 # with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/single_testdata_labels_lst.json','w') as t:
 #     json.dump(trainY,t)
-with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/allFeatures.json') as f:
+with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/allFeaturesDownCaseV2.json') as f:
         trainX = json.load(f)
         f.close()
 # vec = DictVectorizer()
@@ -35,11 +35,11 @@ for d in trainX:
             print "modify None %d" % g
 print "done with training ..."
 
-with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/n_allFeatures.json','w') as fn:
+with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/n_allFeaturesDownCaseV2.json','w') as fn:
         json.dump(trainX,fn)
         fn.close()
 
-with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_allFeatures.json') as ft:
+with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_allFeaturesDownCaseV2.json') as ft:
         testX = json.load(ft)
         ft.close()
 
@@ -52,5 +52,5 @@ for d in testX:
             print "modify None %d" % g
 print "done with testing ..."
 
-with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/n_testdata_allFeatures.json','w') as fte:
+with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/n_testdata_allFeaturesDownCaseV2.json','w') as fte:
         json.dump(testX,fte)

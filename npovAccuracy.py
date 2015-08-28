@@ -7,35 +7,35 @@ def genAllFeaturesFile():
     :return: a file with all the features
     '''
     # allf = open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_POSITIONinSentence.json') as f8file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_POSITIONinSentence.json') as f8file:
         f8 = json.load(f8file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_word_lemma_pos_pos1_pos2.json') as f2tof7file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_word_lemma_pos_pos1_pos2.json') as f2tof7file:
         f2tof7 = json.load(f2tof7file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f9f10hedge_hedgeInContext.json') as f9f10file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f9f10hedge_hedgeInContext_downCase.json') as f9f10file:
         f9f10 = json.load(f9f10file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f11f12Factive.json') as f11f12file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f11f12Factive_downCase.json') as f11f12file:
         f11f12 = json.load(f11f12file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f13f14Assertive.json') as f13f14file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f13f14Assertive_downCase.json') as f13f14file:
         f13f14 = json.load(f13f14file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f15f16Implicative.json') as f15f16file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f15f16Implicative_downCase.json') as f15f16file:
         f15f16 = json.load(f15f16file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f17f18Report.json') as f17f18file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f17f18Report_downCase.json') as f17f18file:
         f17f18 = json.load(f17f18file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f19f20Entailment.json') as f19f20file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f19f20Entailment_downCase.json') as f19f20file:
         f19f20 = json.load(f19f20file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f21f22StrongSubjectiv_context.json') as f21f22file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f21f22StrongSubjectiv_context_downCase.json') as f21f22file:
         f21f22 = json.load(f21f22file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f23f24WeakSubjectiv_context.json') as f23f24f25file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f23f24WeakSubjectiv_context_downCase.json') as f23f24f25file:
         f23tof25 = json.load(f23f24f25file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f26f27f28f29PositiveNegative_Context.json') as f26tof29file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f26f27f28f29PositiveNegative_Context_downCaseCompare.json') as f26tof29file:
         f26tof29 = json.load(f26tof29file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f30GrammaticalRelation.json') as f30file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f30GrammaticalRelation.json') as f30file:
         f30 = json.load(f30file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f31BiasLex.json') as f31file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f31_downCase2Lema.json') as f31file:
         f31 = json.load(f31file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f32CollaborativeFea.json') as f32file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f32CollaborativeFea.json') as f32file:
         f32 = json.load(f32file)
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/testdata_features_lst_f25Polarity.json') as f25file:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_f25_Polarity_downCase.json') as f25file:
         f25 = json.load(f25file)
 
     allFea = []
@@ -82,7 +82,7 @@ def genAllFeaturesFile():
             exit()
         allFea.append(z)
         print "processing %d of 267980" % o
-    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/testdata_allFeatures.json','w') as fp:
+    with open('/Volumes/Seagate Backup Plus Drive/npov_paper_data/npov-edits/allFeaturesDownCaseV2.json','w') as fp:
         json.dump(allFea,fp)
     # json.load('/Volumes/Seagate Backup Plus Drive/npov_paper_data/infoFile1/features_lst_word_lemma_pos_pos1_pos2.json')
 
